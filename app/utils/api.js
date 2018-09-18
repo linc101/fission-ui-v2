@@ -3,7 +3,7 @@
  */
 import axios from 'axios';
 
-const basePath = '/proxy/controller/v1/';
+const basePath = '/proxy/controller/v2/';
 const routerPath = '/proxy/router';
 
 /**

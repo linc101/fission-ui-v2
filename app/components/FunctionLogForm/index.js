@@ -5,7 +5,8 @@
  */
 
 import React from 'react';
-import Influx from 'influx';
+// import Influx from 'influx';
+const Influx = require('influx');
 import FunctionLogItem from 'components/FunctionLogItem';
 // import { FormattedMessage } from 'react-intl';
 // import commonMessages from 'messages';

@@ -51,7 +51,7 @@ const makeSelectFunctions = () => createSelector(
   selectFunctionsPageDomain(),
   (substate) => substate.get('functions').map((e) => ({
     name: e.getIn(['metadata', 'name']),
-    environment: e.getIn(['environment', 'name']),
+    environment: e.getIn(['spec', 'environment', 'name']),
     triggersHttp: (substate.get('triggersHttp').filter((trigger) => trigger.getIn(['function', 'name']) === e.getIn(['metadata', 'name']))).toJS(), // TODO improve, simplify object
     triggersTimer: (substate.get('triggersTimer').filter((trigger) => trigger.getIn(['function', 'name']) === e.getIn(['metadata', 'name']))).toJS(), // TODO improve, simplify object
     triggersMQ: (substate.get('triggersMQ').filter((trigger) => trigger.getIn(['function', 'name']) === e.getIn(['metadata', 'name']))).toJS(), // TODO improve, simplify object

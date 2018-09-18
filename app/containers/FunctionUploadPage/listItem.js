@@ -11,10 +11,13 @@ import commonMessages from 'messages';
 
 export class ListItem extends React.Component { // eslint-disable-line react/prefer-stateless-function
   render() {
-    const { item, onRemove } = this.props;
+    const { item, onRemove, onChange } = this.props;
     return (
       <tr>
-        <td>{ item.name }</td>
+        <td>
+        <input type="text" name="name" value={item.name} onChange={onChange}  />
+
+        </td>
         <td><Link to={`/environments/edit/${item.environment}`}>{ item.environment }</Link></td>
         <td>
           <FormattedMessage {...commonMessages[item.status]} />
@@ -41,6 +44,7 @@ export class ListItem extends React.Component { // eslint-disable-line react/pre
 ListItem.propTypes = {
   item: PropTypes.object,
   onRemove: PropTypes.func,
+  onChange: PropTypes.func,
 };
 
 export default ListItem;

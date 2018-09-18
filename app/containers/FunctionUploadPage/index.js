@@ -25,7 +25,7 @@ export class FunctionUploadPage extends React.Component { // eslint-disable-line
   constructor(props) {
     super(props);
 
-    this.state = {
+    this.state = { 
       functions: props.functions,
       environments: props.environments,
       mode: 'create',
@@ -35,6 +35,7 @@ export class FunctionUploadPage extends React.Component { // eslint-disable-line
     };
 
     this.onRemove = this.onRemove.bind(this);
+    this.onChange = this.onChange.bind(this);
     this.onChooseFiles = this.onChooseFiles.bind(this);
     this.onRemoveUploadedFunctions = this.onRemoveUploadedFunctions.bind(this);
     this.onUpload = this.onUpload.bind(this);
@@ -62,7 +63,13 @@ export class FunctionUploadPage extends React.Component { // eslint-disable-line
     const { functions } = this.state;
     this.props.setUploadFunctions(functions.filter((f) => f.name !== item.name));
   }
-
+  onChange(e) {
+    let f = this.state.functions;
+    f[0].name = e.target.value;
+    this.setState({
+      functions: f
+    });
+  }
   onUpload() {
     const { functions, mode } = this.state;
     if (functions.length === 0) {
@@ -105,6 +112,10 @@ export class FunctionUploadPage extends React.Component { // eslint-disable-line
         name = file.name.slice(0, index);
         const ext = file.name.slice(index + 1);
         environment = ext in fileExt2Env ? fileExt2Env[ext] : '';
+      }
+      else {
+        name = file.name;
+        environment = 'binary-env';
       }
       return {
         name,
@@ -210,7 +221,7 @@ export class FunctionUploadPage extends React.Component { // eslint-disable-line
   render() {
     const { environments } = this.props;
     const { functions, mode, fileExt2Env, draftMapping, inputErrors } = this.state;
-    const { onRemove, onChooseFiles, onRemoveUploadedFunctions, onUpload, onSelectMode,
+    const { onRemove, onChange, onChooseFiles, onRemoveUploadedFunctions, onUpload, onSelectMode,
       onRemoveFileExtMapping, onDraftMappingChange, onDraftMappingCreate, onReadFiles } = this;
     return (
       <div>
@@ -234,7 +245,9 @@ export class FunctionUploadPage extends React.Component { // eslint-disable-line
             <tbody>
               {
                 functions.map((item, index) => (
-                  <ListItem item={item} key={`function-${index}`} onRemove={() => onRemove(item)} />
+                  <ListItem item={item} key={`function-${index}`} onRemove={() => onRemove(
+                    
+                  )} onChange={(e) => onChange(e)} />
                 ))
               }
             </tbody>

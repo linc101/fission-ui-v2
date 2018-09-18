@@ -1,0 +1,6 @@
+{
+    "controllerBackend": "10.211.55.33:31313",
+    "routerBackend": "10.211.55.33:31314",
+    "k8sBackend": "1.211.55.33:28001",
+    "influxdbBackend": ".211.55.33:31315"
+}

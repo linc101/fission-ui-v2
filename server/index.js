@@ -9,38 +9,60 @@ const isDev = process.env.NODE_ENV !== 'production';
 const ngrok = (isDev && process.env.ENABLE_TUNNEL) || argv.tunnel ? require('ngrok') : false;
 const resolve = require('path').resolve;
 const proxy = require('http-proxy-middleware');
+const dataMutate = require('./middlewares/dataMutate');
 const app = express();
 const appInfluxdb = express();
+const bodyParser = require('body-parser');
+const config = require('./config.json');
 
-let controllerBackend = '192.168.99.100:31313';
+let controllerBackend = config.controllerBackend;
 if (process.env.FISSION_CONTROLLER !== undefined) {
   controllerBackend = process.env.FISSION_CONTROLLER;
 }
 
-let routerBackend = '192.168.99.100:31314';
+let routerBackend = config.routerBackend;
 if (process.env.FISSION_ROUTER !== undefined) {
   routerBackend = process.env.FISSION_ROUTER;
 }
 
-let k8sBackend = '127.0.0.1:28001';
+let k8sBackend = config.k8sBackend;
 if (process.env.FISSION_K8S !== undefined) {
   k8sBackend = process.env.FISSION_K8S;
 }
 
-let influxdbBackend = '192.168.99.100:31315';
+let influxdbBackend = config.influxdbBackend;
 if (process.env.FISSION_LOGDB !== undefined) {
   influxdbBackend = process.env.FISSION_LOGDB;
 }
 
+
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json({
+  limit: '100000kb'
+}))
+
+// restream parsed body before proxying
+let restream = function(proxyReq, req, res, options) {
+  if (req.body) {
+      let bodyData = JSON.stringify(req.body);
+      // incase if content-type is application/x-www-form-urlencoded -> we need to change to application/json
+      proxyReq.setHeader('Content-Type','application/json');
+      proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData));
+      // stream the content
+      proxyReq.write(bodyData);
+  }
+}
 // Setup proxy for fission APIs
-app.use('/proxy/controller', proxy({ target: `http://${controllerBackend}`, pathRewrite: { '^/proxy/controller': '' }, changeOrigin: true }));
-app.use('/proxy/router', proxy({ target: `http://${routerBackend}`, pathRewrite: { '^/proxy/router': '' }, changeOrigin: true }));
+app.use(dataMutate);
+app.use('/proxy/controller', proxy({ target: `http://${controllerBackend}`, pathRewrite: { '^/proxy/controller': '' }, changeOrigin: true, onProxyReq: restream }));
+app.use('/proxy/router', proxy({ target: `http://${routerBackend}`, pathRewrite: { '^/proxy/router': '' }, changeOrigin: true, onProxyReq: restream }));
 app.use('/proxy/tpr/benchmark', proxy({
   target: `http://${k8sBackend}`,
   pathRewrite: { '^/proxy/tpr/benchmark': '/apis/benchmark.fission.io/v1/namespaces/fission-benchmark' },
   changeOrigin: true,
+  onProxyReq: restream,
 }));
-appInfluxdb.use('', proxy({ target: `http://${influxdbBackend}`, changeOrigin: true }));
+appInfluxdb.use('', proxy({ target: `http://${influxdbBackend}`, changeOrigin: true, onProxyReq: restream }));
 
 // In production we need to pass these values in instead of relying on webpack
 setup(app, {

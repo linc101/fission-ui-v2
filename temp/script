@@ -1,0 +1,8 @@
+#!/bin/sh
+
+export thresh=80
+read data
+export data=$data
+echo $data
+filter
+echo "Temperature check over!"
