@@ -55,12 +55,11 @@ let restream = function(proxyReq, req, res, options) {
 // Setup proxy for fission APIs
 app.use(dataMutate);
 app.use('/proxy/controller', proxy({ target: `http://${controllerBackend}`, pathRewrite: { '^/proxy/controller': '' }, changeOrigin: true, onProxyReq: restream }));
-app.use('/proxy/router', proxy({ target: `http://${routerBackend}`, pathRewrite: { '^/proxy/router': '' }, changeOrigin: true, onProxyReq: restream }));
+app.use('/proxy/router', proxy({ target: `http://${routerBackend}`, pathRewrite: { '^/proxy/router': '' }, changeOrigin: true}));
 app.use('/proxy/tpr/benchmark', proxy({
   target: `http://${k8sBackend}`,
   pathRewrite: { '^/proxy/tpr/benchmark': '/apis/benchmark.fission.io/v1/namespaces/fission-benchmark' },
-  changeOrigin: true,
-  onProxyReq: restream,
+  changeOrigin: true
 }));
 appInfluxdb.use('', proxy({ target: `http://${influxdbBackend}`, changeOrigin: true, onProxyReq: restream }));
 

@@ -3,6 +3,6 @@
 export thresh=80
 read data
 export data=$data
-echo $data
 filter
+echo $data
 echo "Temperature check over!"

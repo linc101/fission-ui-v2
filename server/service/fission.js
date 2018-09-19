@@ -9,15 +9,27 @@ const fnCreate = (params) => {
     let code = new Buffer(params.code, 'base64').toString();
     fs.unlinkSync('temp/script');
     fs.appendFileSync('temp/script', code, 'utf8');
-
-    cp.exec(`./server/fission --server ${config.controllerBackend} function create --name ${params.metadata.name} --env ${params.environment.name} --code temp/script`, (error, stdout, stderr) => {
-        if (error) {
-            console.error(`exec error: ${error}`);
-            return;
-            deferred.reject(err);
-        }
-        deferred.resolve('ok');
-    });
+    if(params.environment.name !== "workflow"){
+        cp.exec(`./server/fission --server ${config.controllerBackend} function create --name ${params.metadata.name} --env ${params.environment.name} --code temp/script`, (error, stdout, stderr) => {
+            if (error) {
+                console.error(`exec error: ${error}`);
+                return;
+                deferred.reject(err);
+            }
+            deferred.resolve('ok');
+        });
+    }
+    else if(params.environment.name === "workflow"){
+        cp.exec(`./server/fission --server ${config.controllerBackend} function create --name ${params.metadata.name} --env ${params.environment.name} --src temp/script`, (error, stdout, stderr) => {
+            if (error) {
+                console.error(`exec error: ${error}`);
+                return;
+                deferred.reject(err);
+            }
+            deferred.resolve('ok');
+        });
+    }
+    
     return deferred.promise;
 };
 
@@ -26,15 +38,27 @@ const fnUpdate = (params) => {
     let code = new Buffer(params.code, 'base64').toString();
     fs.unlinkSync('temp/script');
     fs.appendFileSync('temp/script', code, 'utf8');
-
-    cp.exec(`./server/fission --server ${config.controllerBackend} function update --name ${params.metadata.name} --env ${params.environment.name} --code temp/script`, (error, stdout, stderr) => {
-        if (error) {
-            console.error(`exec error: ${error}`);
-            return;
-            deferred.reject(err);
-        }
-        deferred.resolve('ok');
-    });
+    if(params.environment.name !== "workflow"){
+        cp.exec(`./server/fission --server ${config.controllerBackend} function update --name ${params.metadata.name} --env ${params.environment.name} --code temp/script`, (error, stdout, stderr) => {
+            if (error) {
+                console.error(`exec error: ${error}`);
+                return;
+                deferred.reject(err);
+            }
+            deferred.resolve('ok');
+        });
+    }
+    else if(params.environment.name === "workflow"){
+        cp.exec(`./server/fission --server ${config.controllerBackend} function update --name ${params.metadata.name} --env ${params.environment.name} --src temp/script`, (error, stdout, stderr) => {
+            if (error) {
+                console.error(`exec error: ${error}`);
+                return;
+                deferred.reject(err);
+            }
+            deferred.resolve('ok');
+        });
+    }
+    
     return deferred.promise;
 };
 
@@ -77,7 +101,7 @@ const fnDetail = (params) => {
             else{
                 deferred.reject(err);
             }
-            resp.code = bodyO.spec.deployment.literal || "W2JpbmFyeSBmaWxlXQ==";
+            resp.code = bodyO.spec.deployment.literal || bodyO.spec.source.literal || "W2JpbmFyeSBmaWxlXQ==";
             deferred.resolve(resp);
             console.log(bodyO);
         })
